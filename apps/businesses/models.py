@@ -68,14 +68,8 @@ class Business(models.Model):
 class BusinessMember(models.Model):
     """
     Members/employees of a business with role-based access.
+    Links to the RBAC Role model for permission management.
     """
-    class Role(models.TextChoices):
-        OWNER = "owner", "Owner"
-        ADMIN = "admin", "Admin"
-        DEVELOPER = "developer", "Developer"
-        FINANCE = "finance", "Finance"
-        SUPPORT = "support", "Support"
-
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     business = models.ForeignKey(
         Business,
@@ -87,10 +81,11 @@ class BusinessMember(models.Model):
         on_delete=models.CASCADE,
         related_name="business_memberships",
     )
-    role = models.CharField(
-        max_length=20,
-        choices=Role.choices,
-        default=Role.DEVELOPER,
+    role = models.ForeignKey(
+        "rbac.Role",
+        on_delete=models.PROTECT,
+        related_name="business_members",
+        limit_choices_to={"category": "business", "is_active": True},
     )
     is_active = models.BooleanField(default=True)
     invited_at = models.DateTimeField(auto_now_add=True)
@@ -106,4 +101,8 @@ class BusinessMember(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.email} — {self.role} @ {self.business.name}"
+        return f"{self.user.email} — {self.role.code} @ {self.business.name}"
+
+    @property
+    def role_code(self):
+        return self.role.code if self.role else None

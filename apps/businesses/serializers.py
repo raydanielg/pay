@@ -46,6 +46,8 @@ class BusinessSerializer(serializers.ModelSerializer):
 class BusinessMemberSerializer(serializers.ModelSerializer):
     user_email = serializers.SerializerMethodField()
     user_name = serializers.SerializerMethodField()
+    role_code = serializers.SerializerMethodField()
+    role_name = serializers.SerializerMethodField()
 
     class Meta:
         model = BusinessMember
@@ -56,15 +58,23 @@ class BusinessMemberSerializer(serializers.ModelSerializer):
             "user_email",
             "user_name",
             "role",
+            "role_code",
+            "role_name",
             "is_active",
             "invited_at",
             "joined_at",
             "created_at",
         ]
-        read_only_fields = ["uuid", "business", "user", "user_email", "user_name", "invited_at", "joined_at", "created_at"]
+        read_only_fields = ["uuid", "business", "user", "user_email", "user_name", "role_code", "role_name", "invited_at", "joined_at", "created_at"]
 
     def get_user_email(self, obj):
         return obj.user.email
 
     def get_user_name(self, obj):
         return obj.user.full_name
+
+    def get_role_code(self, obj):
+        return obj.role.code if obj.role else None
+
+    def get_role_name(self, obj):
+        return obj.role.name if obj.role else None

@@ -31,6 +31,7 @@ class Wallet(models.Model):
         choices=Currency.choices,
         default=Currency.TZS,
     )
+    label = models.CharField(max_length=100, blank=True, default="", help_text="Optional nickname for this wallet")
     status = models.CharField(
         max_length=20,
         choices=WalletStatus.choices,

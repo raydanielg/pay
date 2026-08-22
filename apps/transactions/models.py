@@ -17,7 +17,7 @@ from decimal import Decimal
 
 from django.db import models
 
-from common.constants.statuses import TransactionStatus, TransactionType, Currency
+from common.constants.statuses import TransactionStatus, TransactionType, Currency, PaymentMethod
 
 
 class Transaction(models.Model):
@@ -60,6 +60,13 @@ class Transaction(models.Model):
         max_length=20,
         choices=TransactionType.choices,
         default=TransactionType.PAYMENT,
+    )
+    payment_method = models.CharField(
+        max_length=30,
+        choices=PaymentMethod.choices,
+        blank=True,
+        default="",
+        help_text="How the payment was made",
     )
     status = models.CharField(
         max_length=20,

@@ -15,7 +15,7 @@ class BusinessAdmin(admin.ModelAdmin):
 @admin.register(BusinessMember)
 class BusinessMemberAdmin(admin.ModelAdmin):
     list_display = ("user", "business", "role", "is_active", "joined_at", "created_at")
-    list_filter = ("role", "is_active")
-    search_fields = ("user__email", "business__name")
+    list_filter = ("role__code", "is_active")
+    search_fields = ("user__email", "business__name", "role__code")
     readonly_fields = ("uuid", "invited_at", "joined_at", "created_at", "updated_at")
     ordering = ("-created_at",)

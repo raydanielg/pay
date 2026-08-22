@@ -25,11 +25,14 @@ class BusinessListCreateView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         business = serializer.save()
+        from apps.rbac.models import Role
+        from django.utils import timezone
+        owner_role = Role.objects.get(code="BUSINESS_OWNER")
         BusinessMember.objects.create(
             business=business,
             user=request.user,
-            role=BusinessMember.Role.OWNER,
-            joined_at=__import__("django.utils.timezone", fromlist=["now"]).now(),
+            role=owner_role,
+            joined_at=timezone.now(),
         )
         data = BusinessSerializer(business).data
         return success_response(
@@ -90,10 +93,17 @@ class BusinessMemberListView(generics.ListCreateAPIView):
         except User.DoesNotExist:
             return error_response(message="User not found", error_code="USER_NOT_FOUND", status=404)
 
+        from apps.rbac.models import Role
+        role_code = request.data.get("role_code", "DEVELOPER")
+        try:
+            role = Role.objects.get(code=role_code, category="business", is_active=True)
+        except Role.DoesNotExist:
+            return error_response(message=f"Role {role_code} not found", error_code="ROLE_NOT_FOUND", status=404)
+
         member, created = BusinessMember.objects.get_or_create(
             business=business,
             user=user,
-            defaults={"role": request.data.get("role", BusinessMember.Role.DEVELOPER)},
+            defaults={"role": role},
         )
         if not created:
             return error_response(message="User is already a member", error_code="ALREADY_MEMBER", status=409)
@@ -130,7 +140,7 @@ class BusinessMemberDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.role == BusinessMember.Role.OWNER:
+        if instance.role.code == "BUSINESS_OWNER":
             return error_response(message="Cannot remove business owner", error_code="CANNOT_REMOVE_OWNER", status=400)
         instance.is_active = False
         instance.save()

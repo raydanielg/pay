@@ -36,6 +36,19 @@ INSTALLED_APPS = [
     "apps.ledger",
     "apps.transactions",
     "apps.fees",
+    "apps.rbac",
+    # Phase 2 — Payment Gateway Features
+    "apps.withdrawals",
+    "apps.refunds",
+    "apps.checkout",
+    "apps.payment_links",
+    "apps.qr_payments",
+    "apps.webhooks",
+    "apps.reconciliation",
+    "apps.notifications",
+    "apps.risk",
+    "apps.developer",
+    "apps.reports",
 ]
 
 MIDDLEWARE = [

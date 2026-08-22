@@ -18,6 +18,7 @@ class WalletSerializer(serializers.ModelSerializer):
             "business",
             "business_name",
             "currency",
+            "label",
             "status",
             "available_balance",
             "pending_balance",
